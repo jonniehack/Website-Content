@@ -8,7 +8,7 @@ Version: 1.0.0
 
 
 #Import CSV
-$CSV = Import-Csv .\MercuryCloudDCs.csv
+$CSV = Import-Csv .\YourCSV.csv
 
 #Set Everything to Zero
 $Count = 0
