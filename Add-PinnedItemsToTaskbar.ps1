@@ -1,6 +1,6 @@
 ﻿<#
 Script to Pin Programs to the taskbar
-
+I am testing a GitHub Change
 Author:  Jonathan of www.deploymentshare.com
 Version: 1.0.0
 
