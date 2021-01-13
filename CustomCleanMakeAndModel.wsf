@@ -1,0 +1,104 @@
+
+<job id="ZTIClean-MakeModel">
+<script language="VBScript" src="ZTIUtility.vbs"/>
+<script language="VBScript">
+
+' //***************************************************************************
+' // ***** Script Header *****
+' //
+' // Solution: Solution Accelerator for Microsoft Deployment
+' // File: CustomCleanMakeandModel.wsf
+' //
+' // Purpose: Clean the Make and Model WMI Queries remove all slashes
+' //
+' // Usage: cscript CustomCleanMakeandModel.wsf
+' //
+' // Customer Build Version: 1.0.0
+' // Customer Script Version: 1.0.0
+' // Customer History:
+' //
+' // ***** End Header *****
+' //***************************************************************************
+
+'//----------------------------------------------------------------------------
+'//
+'// Global constant and variable declarations
+'//
+'//----------------------------------------------------------------------------
+
+Option Explicit
+
+Dim iRetVal
+
+'//----------------------------------------------------------------------------
+'// End declarations
+'//----------------------------------------------------------------------------
+
+'//----------------------------------------------------------------------------
+'// Main routine
+'//----------------------------------------------------------------------------
+
+On Error Resume Next
+iRetVal = ZTIProcess
+ProcessResults iRetVal
+On Error Goto 0
+
+'//---------------------------------------------------------------------------
+'//
+'// Function: ZTIProcess()
+'//
+'// Input: None
+'//
+'// Return: Success - 0
+'// Failure - non-zero
+'//
+'// Purpose: Perform main ZTI processing
+'// Creates two new variables CleanMake and CleanModel in the Task Sequence
+'//
+'//---------------------------------------------------------------------------
+Function ZTIProcess()
+
+iRetVal = Success
+
+ZTIProcess = iRetval
+
+	dim cleanMake, cleanModel
+		
+	cleanMake = CleanString(oEnvironment.Item("Make"))
+	cleanModel = CleanString(oEnvironment.Item("Model"))
+
+	oEnvironment.Item("CleanMake") = cleanMake
+	oEnvironment.Item("CleanModel") = cleanModel
+
+End Function
+
+
+'//---------------------------------------------------------------------------
+'//
+'// Function: CleanString()
+'//
+'// Input: String to be 'Cleaned' by removing illegal chars
+'//
+'// Return: Success - 0
+'// Failure - non-zero
+'//
+'// Purpose: 'Cleans' the string passed to it
+'//
+'//---------------------------------------------------------------------------
+Function CleanString(dirtyString)
+
+
+	Dim objRegExp, outputStr
+	Set objRegExp = New Regexp
+
+	objRegExp.IgnoreCase = True
+	objRegExp.Global = True
+	objRegExp.Pattern = "[()?*"",\\<>&#~%{}+_.@:\/!;]+"
+	outputStr = objRegExp.Replace(dirtyString, "")
+
+	CleanString = outputStr
+
+End Function
+
+</script>
+</job>
