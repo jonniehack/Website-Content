@@ -7,7 +7,7 @@
 .AUTHOR
     Jonathan Fallis
 .VERSION
-    1.0.0
+    UNFINISHED _ AS OF YET
 .EXAMPLE
    
 #>
@@ -27,35 +27,35 @@ $MultiDimentionalArray =
     @(
     # Internet Explorer    
         '$folder = $shell.Namespace("C:\Program Files\Internet Explorer");',  
-        '$item = $folder.Parsename("iexplore.exe")'
+        '$item = $folder.Parsename("iexplore.exe");'
     ),@(
     # MDT Deployment Workbench  
         '$folder = $shell.Namespace("C:\Program Files\Microsoft Deployment Toolkit\Bin");',
-        '$item = $folder.Parsename("DeploymentWorkbench.msc")'
+        '$item = $folder.Parsename("DeploymentWorkbench.msc");'
     ),@(
     # AD Users and Computers  
         '$folder = $shell.Namespace("c:\windows\system32");',
-        '$item = $folder.Parsename("dsa.msc")'
+        '$item = $folder.Parsename("dsa.msc");'
     ),@(
     # DHCP  
         '$folder = $shell.Namespace("c:\windows\system32");',
-        '$item = $folder.Parsename("dhcpmgmt.msc")'
+        '$item = $folder.Parsename("dhcpmgmt.msc");'
     ),@(
     # DNS  
         '$folder = $shell.Namespace("c:\windows\system32");',  
-        '$item = $folder.Parsename("dnsmgmt.msc")'
+        '$item = $folder.Parsename("dnsmgmt.msc");'
     ),@(
     # Group Policy  
         '$folder = $shell.Namespace("c:\windows\system32");',  
-        '$item = $folder.Parsename("gpmc.msc")'
+        '$item = $folder.Parsename("gpmc.msc");'
     ),@(
     # WSUS  
         '$folder = $shell.Namespace("c:\program files\update services\administrationSnapin");',  
-        '$item = $folder.Parsename("wsus.msc")'
+        '$item = $folder.Parsename("wsus.msc");'
     ),@(
     # WDS
         '$folder = $shell.Namespace("c:\windows\system32");',  
-        '$item = $folder.Parsename("WdsMgmt.msc")'
+        '$item = $folder.Parsename("WdsMgmt.msc");'
     )
 
 $Pin = '$item.invokeverb("taskbarpin")'
@@ -72,13 +72,13 @@ $Pin = '$item.invokeverb("taskbarpin")'
     #7 - WDS
 
 Switch ($Option) {
-    "0" {$MultiDimentionalArray[0]; $Pin}
-    "1" {$MultiDimentionalArray[1]; $Pin}
-    "2" {$MultiDimentionalArray[2]; $Pin}
-    "3" {$MultiDimentionalArray[3]; $Pin}
-    "4" {$MultiDimentionalArray[4]; $Pin}
-    "5" {$MultiDimentionalArray[5]; $Pin}
-    "6" {$MultiDimentionalArray[6]; $Pin}
-    "7" {$MultiDimentionalArray[7]; $Pin}
+    "0" {& $MultiDimentionalArray[0]; & $Pin}
+    "1" {& $MultiDimentionalArray[1]; & $Pin}
+    "2" {& $MultiDimentionalArray[2]; & $Pin}
+    "3" {& $MultiDimentionalArray[3]; & $Pin}
+    "4" {& $MultiDimentionalArray[4]; & $Pin}
+    "5" {& $MultiDimentionalArray[5]; & $Pin}
+    "6" {& $MultiDimentionalArray[6]; & $Pin}
+    "7" {& $MultiDimentionalArray[7]; & $Pin}
 
 }
