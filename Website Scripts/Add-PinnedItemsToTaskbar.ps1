@@ -7,9 +7,11 @@
 .AUTHOR
     Jonathan Fallis
 .VERSION
-    UNFINISHED _ AS OF YET
+    1.0.1 - Changed the script to have a switch option for calling via params & logic to be used elsewhere
 .EXAMPLE
-   
+    .\Add-PinnedItemsToTaskbar -Option MDT
+    .\Add-PinnedItemsToTaskbar -Option GPO
+    .\Add-PinnedItemsToTaskbar -Option DNS
 #>
  
 [CmdletBinding()]
@@ -22,63 +24,15 @@ param(
 #Constants
 $shell = new-object -com 'Shell.Application'  
 
-#Array
-$MultiDimentionalArray = 
-    @(
-    # Internet Explorer    
-        '$folder = $shell.Namespace("C:\Program Files\Internet Explorer");',  
-        '$item = $folder.Parsename("iexplore.exe");'
-    ),@(
-    # MDT Deployment Workbench  
-        '$folder = $shell.Namespace("C:\Program Files\Microsoft Deployment Toolkit\Bin");',
-        '$item = $folder.Parsename("DeploymentWorkbench.msc");'
-    ),@(
-    # AD Users and Computers  
-        '$folder = $shell.Namespace("c:\windows\system32");',
-        '$item = $folder.Parsename("dsa.msc");'
-    ),@(
-    # DHCP  
-        '$folder = $shell.Namespace("c:\windows\system32");',
-        '$item = $folder.Parsename("dhcpmgmt.msc");'
-    ),@(
-    # DNS  
-        '$folder = $shell.Namespace("c:\windows\system32");',  
-        '$item = $folder.Parsename("dnsmgmt.msc");'
-    ),@(
-    # Group Policy  
-        '$folder = $shell.Namespace("c:\windows\system32");',  
-        '$item = $folder.Parsename("gpmc.msc");'
-    ),@(
-    # WSUS  
-        '$folder = $shell.Namespace("c:\program files\update services\administrationSnapin");',  
-        '$item = $folder.Parsename("wsus.msc");'
-    ),@(
-    # WDS
-        '$folder = $shell.Namespace("c:\windows\system32");',  
-        '$item = $folder.Parsename("WdsMgmt.msc");'
-    )
-
-$Pin = '$item.invokeverb("taskbarpin")'
-
-
-#Switch Options
-    #0 = Internet Explorer
-    #1 - MDT Deployment Workbench
-    #2 - AD Users and Computers
-    #3 - DHCP
-    #4 - DNS
-    #5 - Group Policy Editor
-    #6 - WSUS
-    #7 - WDS
 
 Switch ($Option) {
-    "0" {& $MultiDimentionalArray[0]; & $Pin}
-    "1" {& $MultiDimentionalArray[1]; & $Pin}
-    "2" {& $MultiDimentionalArray[2]; & $Pin}
-    "3" {& $MultiDimentionalArray[3]; & $Pin}
-    "4" {& $MultiDimentionalArray[4]; & $Pin}
-    "5" {& $MultiDimentionalArray[5]; & $Pin}
-    "6" {& $MultiDimentionalArray[6]; & $Pin}
-    "7" {& $MultiDimentionalArray[7]; & $Pin}
+    "0" {$folder = $shell.Namespace("C:\Program Files\Internet Explorer"); $item = $folder.Parsename("iexplore.exe"); $item.invokeverb("taskbarpin")}
+    "1" {$folder = $shell.Namespace("C:\Program Files\Microsoft Deployment Toolkit\Bin"); $item = $folder.Parsename("DeploymentWorkbench.msc"); $item.invokeverb("taskbarpin")}
+    "2" {$folder = $shell.Namespace("c:\windows\system32"); $item = $folder.Parsename("dsa.msc"); $item.invokeverb("taskbarpin")}
+    "3" {$folder = $shell.Namespace("c:\windows\system32"); $item = $folder.Parsename("dhcpmgmt.msc"); $item.invokeverb("taskbarpin")}
+    "4" {$folder = $shell.Namespace("c:\windows\system32"); $item = $folder.Parsename("dnsmgmt.msc"); $item.invokeverb("taskbarpin")}
+    "5" {$folder = $shell.Namespace("c:\windows\system32"); $item = $folder.Parsename("gpmc.msc"); $item.invokeverb("taskbarpin")}
+    "6" {$folder = $shell.Namespace("c:\program files\update services\administrationSnapin"); $item = $folder.Parsename("wsus.msc"); $item.invokeverb("taskbarpin")}
+    "7" {$folder = $shell.Namespace("c:\windows\system32"); $item = $folder.Parsename("WdsMgmt.msc"); $item.invokeverb("taskbarpin")}
 
 }
