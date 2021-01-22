@@ -33,7 +33,7 @@ New-Item $sharePath -ItemType directory -Verbose
 New-SmbShare -Name DEPLOYMENTSHARE$ -Path $sharePath -FullAccess Everyone -Verbose
  
   # CREATE NEW DEPLOYMENTSHARE (ON ROOT OF C:\)
-New-PSDrive -Name "DS001" -PSProvider MDTProvider –Root "C:\DEPLOYMENTSHARE$" -Description "Deploymentshare" -Verbose | add-MDTPersistentDrive -Verbose
+New-PSDrive -Name "DS001" -PSProvider MDTProvider ï¿½Root "C:\DEPLOYMENTSHARE$" -Description "Deploymentshare" -Verbose | add-MDTPersistentDrive -Verbose
  
   # ADD LINKED SHARE TO DEPLOY SERVER
 New-PSDrive -Name "DESTDEPSHARE" -PSProvider MDTProvider -root $SourceDeploymentshare -Verbose
