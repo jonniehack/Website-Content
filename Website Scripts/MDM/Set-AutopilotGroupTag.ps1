@@ -1,4 +1,18 @@
-﻿Param(
+﻿<#
+.SYNOPSIS
+    Installed Get-WindowsAuopilotInfo.ps1 and calls it using the parameter
+.DESCRIPTION
+    * Used alongside a task sequence within Configuration Manager, this script was uses to add the device to autopilot and set a GroupTa
+.AUTHOR
+    Jonathan Fallis - www.deploymentshare.com
+.VERSION
+    1.0.1 - Added Error Logging
+    1.0.0 - Original
+.EXAMPLE
+    .\Set-AutopilotGroupTag -TenantID "123456" -AppID "234567" -SecretID "345678" -GroupTag "AutopilotDevice"
+#>
+
+Param(
     [Parameter(Mandatory=$true)]
     [string]$TenantID,
     [Parameter(Mandatory=$true)]
@@ -54,8 +68,12 @@ Function Write-log {
 }
 
 #Test for internet connectivty using 8.8.8.8
-If (Test-Connection 8.8.8.8 -quiet) {Write-Log -Type Info -Message "Internet Connection OK" -Component "Internet Check" -Path $LogFilePath}
-Else {Write-Log -Type Error -Message "Internet Connection check failed" -Component "Internet Check" -Path $LogFilePath ; Exit 1 }
+If (Test-Connection 8.8.8.8 -quiet) {
+    Write-Log -Type Info -Message "Internet Connection OK" -Component "Internet Check" -Path $LogFilePath
+}
+Else {
+    Write-Log -Type Error -Message "Internet Connection check failed" -Component "Internet Check" -Path $LogFilePath ; Exit 1 
+}
 
 #Enable TLS 1.2
 Try {
@@ -81,7 +99,9 @@ Try {
         Write-Log -Type Info -Message "Moved PowerShellGet to $WorkingDir" -Component "PowerShellGet Check" -Path $LogFilePath
         }
 }
-Catch {Write-Log -Type Error -Message ($_ | Out-String) -Component "PowerShellGet Check" -Path $LogFilePath}
+Catch {
+    Write-Log -Type Error -Message ($_ | Out-String) -Component "PowerShellGet Check" -Path $LogFilePath
+}
 
 #PackageManagement from PSGallery URL
 Try {
@@ -98,16 +118,30 @@ Try {
         Write-Log -Type Info -Message "Moved PackageManagement to $WorkingDir" -Component "PackageManagement Check" -Path $LogFilePath
         }
 }
-Catch {Write-Log -Type Error -Message ($_ | Out-String) -Component "PackageManagement Check" -Path $LogFilePath}
+Catch {
+    Write-Log -Type Error -Message ($_ | Out-String) -Component "PackageManagement Check" -Path $LogFilePath
+}
 
 #Import PowerShellGet
-if (Import-Module PowerShellGet) {Write-Log -Type Info -Message "PowerShellGet Module Imported OK" -Component "PowerShellGet Import" -Path $LogFilePath}
-Else {Write-Log -Type Error -Message ($_ | Out-String) -Component "PowerShellGet Import" -Path $LogFilePath ; Exit 1 }
+if (Import-Module PowerShellGet) {
+    Write-Log -Type Info -Message "PowerShellGet Module Imported OK" -Component "PowerShellGet Import" -Path $LogFilePath
+}
+Else {
+    Write-Log -Type Error -Message ($_ | Out-String) -Component "PowerShellGet Import" -Path $LogFilePath ; Exit 1 
+}
 
 #Install the script
-if (Install-Script Get-WindowsAutopilotinfo -Force) {Write-Log -Type Info -Message "Get-WindowsAutopilotInfo Installed OK" -Component "Get-WindowsAutopilotInfo Install" -Path $LogFilePath}
-Else {Write-Log -Type Error -Message ($_ | Out-String) -Component "Get-WindowsAutopilotInfo Install" -Path $LogFilePath ; Exit 1 }
+if (Install-Script Get-WindowsAutopilotinfo -Force) {
+    Write-Log -Type Info -Message "Get-WindowsAutopilotInfo Installed OK" -Component "Get-WindowsAutopilotInfo Install" -Path $LogFilePath
+}
+Else {
+    Write-Log -Type Error -Message ($_ | Out-String) -Component "Get-WindowsAutopilotInfo Install" -Path $LogFilePath ; Exit 1 
+}
 
 #Run the script
-if (Get-WindowsAutopilotinfo -Online -TenantId $TenantID -AppId $AppID -AppSecret $SecretID -Grouptag $GroupTag) {Write-Log -Type Info -Message "Get-WindowsAutopilotInfo executed successfully" -Component "Running Get-WindowsAutopilotInfo" -Path $LogFilePath}
-Else {Write-Log -Type Error -Message ($_ | Out-String) -Component "Get-WindowsAutopilotInfo Install" -Path $LogFilePath ; Exit 1 }
+if (Get-WindowsAutopilotinfo -Online -TenantId $TenantID -AppId $AppID -AppSecret $SecretID -Grouptag $GroupTag) {
+    Write-Log -Type Info -Message "Get-WindowsAutopilotInfo executed successfully" -Component "Running Get-WindowsAutopilotInfo" -Path $LogFilePath
+}
+Else {
+    Write-Log -Type Error -Message ($_ | Out-String) -Component "Get-WindowsAutopilotInfo Install" -Path $LogFilePath ; Exit 1 
+}
