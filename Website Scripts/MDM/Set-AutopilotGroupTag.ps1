@@ -1,6 +1,6 @@
 ﻿<#
 .SYNOPSIS
-    Installed Get-WindowsAuopilotInfo.ps1 and calls it using the parameter
+    Installs Get-WindowsAuopilotInfo.ps1 and calls it using the parameter
 .DESCRIPTION
     * Used alongside a task sequence within Configuration Manager, this script was uses to add the device to autopilot and set a GroupTa
 .AUTHOR
