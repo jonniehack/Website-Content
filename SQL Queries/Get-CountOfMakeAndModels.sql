@@ -1,4 +1,4 @@
-Use CM_PR1
+Use YOUR_DB_HERE
 
 SELECT  
 	Model00 as 'Model',
@@ -7,7 +7,10 @@ SELECT
 FROM
 	dbo.Computer_System_DATA
 WHERE
-  	Manufacturer00 Like 'Dell Inc.' or Manufacturer00 Like 'Hewlett-Packard'
+  	Manufacturer00 Like 'Dell Inc.' 
+	or Manufacturer00 Like 'Hewlett-Packard'
+	or Manufacturer00 Like 'HP'
+	or Manufacturer00 like 'Lenovo'
 GROUP BY 
 	Model00, Manufacturer00
 ORDER BY
