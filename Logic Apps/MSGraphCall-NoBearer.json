@@ -1,0 +1,78 @@
+{
+    "definition": {
+        "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+        "actions": {
+            "HTTP_-_Microsoft_Graph_Call": {
+                "description": "This step will call the Microsoft Graph URL passed from PowerBI and use the bearer token in the Headers for Authorization.",
+                "inputs": {
+                    "authentication": {
+                        "audience": "@triggerBody()?['Audience']",
+                        "clientId": "@triggerBody()?['AppID']",
+                        "secret": "@triggerBody()?['SecretID']",
+                        "tenant": "@triggerBody()?['TenantID']",
+                        "type": "ActiveDirectoryOAuth"
+                    },
+                    "headers": {
+                        "content-type": "application/json"
+                    },
+                    "method": "GET",
+                    "uri": "@triggerBody()?['GraphUrl']"
+                },
+                "runAfter": {},
+                "runtimeConfiguration": {
+                    "paginationPolicy": {
+                        "minimumItemCount": 100000
+                    }
+                },
+                "type": "Http"
+            },
+            "Response_-_Pass_back_the_Results": {
+                "description": "Finally, the results from the call, are passed back to PowerBI.",
+                "inputs": {
+                    "body": "@body('HTTP_-_Microsoft_Graph_Call')",
+                    "statusCode": 200
+                },
+                "kind": "Http",
+                "runAfter": {
+                    "HTTP_-_Microsoft_Graph_Call": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "Response"
+            }
+        },
+        "contentVersion": "1.0.0.0",
+        "outputs": {},
+        "parameters": {},
+        "triggers": {
+            "manual": {
+                "description": "When the logic app is triggered by the URL, it must be passed a Bearer token (from the PowerBI Function) and the URL of the Microsoft Graph API you wish to call.",
+                "inputs": {
+                    "schema": {
+                        "properties": {
+                            "AppID": {
+                                "type": "string"
+                            },
+                            "Audience": {
+                                "type": "string"
+                            },
+                            "GraphUrl": {
+                                "type": "string"
+                            },
+                            "SecretID": {
+                                "type": "string"
+                            },
+                            "TenantID": {
+                                "type": "string"
+                            }
+                        },
+                        "type": "object"
+                    }
+                },
+                "kind": "Http",
+                "type": "Request"
+            }
+        }
+    },
+    "parameters": {}
+}
