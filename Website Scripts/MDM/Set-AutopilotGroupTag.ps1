@@ -7,11 +7,11 @@
     Jonathan Fallis - www.deploymentshare.com
     Nick Benton - www.oddsandendpoints.co.uk
 .VERSION
-    1.2.3 -  Changed WinRM configuration
-    1.2.2 - Added Microsoft.Graph.Authentication to the required modules and requirement for WinRM
-    1.2.1 - Changed error handling to display in console and use transcript
-    1.2 - Improved logic
-    1.1 - Updated so the error handling works
+    1.0.7 - Changed WinRM configuration
+    1.0.6 - Added Microsoft.Graph.Authentication to the required modules and requirement for WinRM
+    1.0.5 - Changed error handling to display in console and use transcript
+    1.0.4 - Improved logic
+    1.0.3 - Updated so the error handling works
     1.0.2 - Updated to support Get-WindowsAutopilotInfoCommunity and empty groupTags
     1.0.1 - Added Error Logging
     1.0.0 - Original
