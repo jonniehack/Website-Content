@@ -28,10 +28,10 @@ PRIVATEDATA
     Used alongside a task sequence within Configuration Manager, this script was uses to add the device to autopilot and set a GroupTag
 
 .EXAMPLE
-    .\Set-AutopilotGroupTag -tenantId "123456" -appId "234567" -appSecret "345678" -groupTag "AutopilotDevice"
+    .\Set-AutopilotGroupTag -TenantID "123456" -AppID "234567" -SecretID "345678" -groupTag "AutopilotDevice"
 
 .NOTES
-Should use Task Sequence Variables for the parameters, e.g. %TenantID%, %AppID%, %AppSecret%, %GroupTag%
+Should use Task Sequence Variables for the parameters, e.g. %TenantID%, %AppID%, %SecretID%, %GroupTag%
 
 To allow data to be passed to SMSTSLog create a variable called 'OSDLogPowerShellParameters' and set it to 'True'
 
