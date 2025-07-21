@@ -1,33 +1,56 @@
-﻿<#
-.SYNOPSIS
-    Installs Get-WindowsAutopilotInfoCommunity.ps1 and calls it using the parameter
-.DESCRIPTION
-    Used alongside a task sequence within Configuration Manager, this script was uses to add the device to autopilot and set a GroupTa
+﻿<#PSScriptInfo
+
+.VERSION 1.2.6
 .AUTHOR
-    Jonathan Fallis - www.deploymentshare.com
-    Nick Benton - www.oddsandendpoints.co.uk
-.VERSION
-    1.0.7 - Changed WinRM configuration
-    1.0.6 - Added Microsoft.Graph.Authentication to the required modules and requirement for WinRM
-    1.0.5 - Changed error handling to display in console and use transcript
-    1.0.4 - Improved logic
-    1.0.3 - Updated so the error handling works
-    1.0.2 - Updated to support Get-WindowsAutopilotInfoCommunity and empty groupTags
-    1.0.1 - Added Error Logging
-    1.0.0 - Original
-.EXAMPLE
-    .\Set-AutopilotGroupTag -tenantId "123456" -appId "234567" -appSecret "345678" -groupTag "AutopilotDevice"
+Jonathan Fallis - www.deploymentshare.com
+Nick Benton - www.oddsandendpoints.co.uk
+
+.RELEASENOTES
+1.0.0 - Original
+1.0.1 - Added Error Logging
+1.0.2 - Updated to support Get-WindowsAutopilotInfoCommunity and empty groupTags
+1.1.0 - Updated so the error handling works
+1.2.0 - Improved logic
+1.2.1 - Changed error handling to display in console and use transcript
+1.2.2 - Added Microsoft.Graph.Authentication to the required modules and requirement for WinRM
+1.2.3 - Changed WinRM configuration
+1.2.4 - Updated logging settings
+1.2.5 - Included diagnostics script to allow for troubleshooting
+1.2.6 - Corrected params to match blog post images
+
+PRIVATEDATA
 #>
 
-Param(
+<#
+.SYNOPSIS
+    Installs Get-WindowsAutopilotInfoCommunity.ps1 and calls it using the parameters
+.DESCRIPTION
+    Used alongside a task sequence within Configuration Manager, this script was uses to add the device to autopilot and set a GroupTag
+
+.EXAMPLE
+    .\Set-AutopilotGroupTag -tenantId "123456" -appId "234567" -appSecret "345678" -groupTag "AutopilotDevice"
+
+.NOTES
+Should use Task Sequence Variables for the parameters, e.g. %TenantID%, %AppID%, %AppSecret%, %GroupTag%
+
+To allow data to be passed to SMSTSLog create a variable called 'OSDLogPowerShellParameters' and set it to 'True'
+
+#>
+
+param(
+
     [Parameter(Mandatory = $true)]
-    [string]$tenantId,
+    [string]$TenantID,
+
     [Parameter(Mandatory = $true)]
-    [string]$appId,
+    [string]$AppId,
+
     [Parameter(Mandatory = $true)]
-    [string]$appSecret,
+    [string]$SecretID,
+
     [Parameter(Mandatory = $false)]
-    [string]$groupTag
+    [string]$GroupTag
+
 )
 
 $ErrorActionPreference = 'stop'
@@ -45,45 +68,48 @@ Start-Transcript -Path $logFile -Append
 
 [System.Environment]::SetEnvironmentVariable('LOCALAPPDATA', "$env:SystemDrive\Windows\system32\config\systemprofile\AppData\Local")
 
-#Test for internet connectivity using 8.8.8.8
-If (Test-Connection 8.8.8.8 -Quiet) {
+#region connection check
+if (Test-Connection 8.8.8.8 -Quiet) {
     Write-Output 'Internet Connection OK'
 }
-Else {
+else {
     Write-Error 'Internet Connection check failed'
     Stop-Transcript
-    Exit 1
+    exit 1
 }
+#endregion connection check
 
-#Enable TLS 1.2
-Try {
+
+#region TLS1.2
+try {
     [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
     Write-Output 'Setting TLS1.2'
 
 }
-Catch {
+catch {
     Write-Error "Setting TLS1.2 - $($_.Exception | Out-String)"
     Stop-Transcript
-    Exit 1
+    exit 1
 }
+#endregion TLS1.2
 
-#Modules
+#region Modules
 $PowerShellModules = @('PackageManagement', 'PowerShellGet', 'Microsoft.Graph.Authentication')
 foreach ($PowerShellModule in $PowerShellModules) {
-    $PowerShellModuleVer = Switch ($PowerShellModule) {
+    $PowerShellModuleVer = switch ($PowerShellModule) {
         PackageManagement { '1.4.8.1' }
         PowerShellGet { '2.2.5' }
         Microsoft.Graph.Authentication { '2.9.1' }
 
     }
 
-    $PowerShellModuleURL = Switch ($PowerShellModule) {
+    $PowerShellModuleURL = switch ($PowerShellModule) {
         PackageManagement { "https://psg-prod-eastus.azureedge.net/packages/$($PowerShellModule.ToLower()).$PowerShellModuleVer.nupkg" }
         PowerShellGet { "https://psg-prod-eastus.azureedge.net/packages/$($PowerShellModule.ToLower()).$PowerShellModuleVer.nupkg" }
         Microsoft.Graph.Authentication { "https://psg-prod-eastus.azureedge.net/packages/$($PowerShellModule.ToLower()).$PowerShellModuleVer.nupkg" }
     }
 
-    Try {
+    try {
         if (!(Get-Module -Name $PowerShellModule)) {
 
             $PowerShellModuleZip = "$workingDir\$PowerShellModule.$PowerShellModuleVer.zip"
@@ -110,56 +136,70 @@ foreach ($PowerShellModule in $PowerShellModules) {
             Write-Output "Moved $PowerShellModule to $PowerShellModulePF"
         }
 
-        Try {
+        try {
             Import-Module $PowerShellModule
             Write-Output "$PowerShellModule Module Imported OK"
         }
-        Catch {
+        catch {
             Write-Error "$PowerShellModule Import - $($_.Exception | Out-String)"
             Stop-Transcript
-            Exit 1
+            exit 1
         }
 
     }
-    Catch {
+    catch {
         Write-Error "$PowerShellModule Module - $($_.Exception | Out-String)"
         Stop-Transcript
-        Exit 1
+        exit 1
     }
 }
+#endregion Modules
 
-#enable WinRM
-Try {
+#region WinRM
+try {
     Set-WSManQuickConfig -Force -SkipNetworkProfileCheck
     Write-Output 'Enabled WinRM'
 }
 catch {
     Write-Error "WinRM - $($_.Exception | Out-String)"
     Stop-Transcript
-    Exit 1
+    exit 1
 }
+#endregion WinRM
 
-#Install the script
-Try {
+#region Windows Autopilot Info Community
+try {
     Install-Script Get-WindowsAutopilotInfoCommunity -Force
     Write-Output 'Get-WindowsAutopilotInfoCommunity Installed OK'
-    Try {
+    try {
         if (!$groupTag) {
             $groupTag = ''
         }
         Get-WindowsAutopilotInfoCommunity -Online -tenantId $tenantId -appId $appId -appSecret $appSecret -groupTag $groupTag
         Write-Output 'Get-WindowsAutopilotInfoCommunity executed successfully'
-        Stop-Transcript
-        exit 0
     }
-    Catch {
+    catch {
         Write-Error "Get-WindowsAutopilotInfoCommunity execution - $($_.Exception | Out-String)"
         Stop-Transcript
-        Exit 1
+        exit 1
     }
 }
-Catch {
+catch {
     Write-Error "Get-WindowsAutopilotInfoCommunity Install - $($_.Exception | Out-String)"
     Stop-Transcript
-    Exit 1
+    exit 1
 }
+#endregion Windows Autopilot Info Community
+
+#region Windows Diagnostics Community
+try {
+    Install-Script Get-AutopilotDiagnosticsCommunity -Force
+    Write-Output 'Get-AutopilotDiagnosticsCommunity Installed OK'
+    exit 0
+}
+catch {
+    Write-Error "Get-AutopilotDiagnosticsCommunity Install - $($_.Exception | Out-String)"
+    Stop-Transcript
+    exit 0
+}
+#endregion Windows Diagnostics Community
