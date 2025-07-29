@@ -1,6 +1,6 @@
 let
 
-// Application Registration Permissions needed to make this call : 	DeviceManagementServiceConfig.Read.All 
+// Application Registration Permissions needed to make this call :  DeviceManagementServiceConfig.Read.All 
 //                                                                  DeviceManagementConfiguration.Read.All
 
 // Microsoft Graph URL
