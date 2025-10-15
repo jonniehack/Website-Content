@@ -22,9 +22,9 @@ $Services = @(
     'SMS_NOTIFICATION_SERVER',
     'SMS_POLICY_PROVIDER',
     'SMS_STATE_SYSTEM',
-    'SMS_MP_CONTROL_MANAGER'
-    'SMS_SITE_SQL_BACKUP'
-    'SMS_SITE_VSS_WRITER'
+    'SMS_MP_CONTROL_MANAGER',
+    'SMS_SITE_SQL_BACKUP',
+    'SMS_SITE_VSS_WRITER',
 
     # IIS Services
     'W3SVC', 
@@ -34,7 +34,7 @@ $Services = @(
     'MSSQLSERVER',
 	'SQLSERVERAGENT',
 	'SQLBrowser',
-	'ReportServer'# Change if you use named instance (e.g., 'ReportServer$INSTANCE')
+	'ReportServer', # Change if you use named instance (e.g., 'ReportServer$INSTANCE')
     'SQLWriter'
 
 ) # Services List
@@ -114,7 +114,7 @@ Function Stop-Services {
         }
     }
 
-    Write-Host "`nWaiting for all stop jobs to finish..." -ForegroundColor White
+    Write-Host "`n Waiting for all stop jobs to finish..." -ForegroundColor White
     Wait-Job -Job $jobList | Out-Null
 
     # Suppress job output completely
@@ -159,7 +159,7 @@ Function Start-Services {
         }
     }
 
-    Write-Host "`nWaiting for all background jobs to finish..." -ForegroundColor White
+    Write-Host "`n Waiting for all background jobs to finish..." -ForegroundColor White
     Wait-Job -Job $jobList | Out-Null
 
     # Suppress job output completely
