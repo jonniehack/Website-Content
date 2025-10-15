@@ -32,7 +32,7 @@ The following services are checked 'out-of-the-box'
 
 ## Usage
 
-Simply call the script using an administrative console windows (so that you have rights to edit the services state) and follow the on screen instructions.
+Simply call the script using an administrative console window (so that you have rights to edit the services state) and follow the on screen instructions.
 
 ## Demo
 
