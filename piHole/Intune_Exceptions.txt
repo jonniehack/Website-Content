@@ -9,6 +9,7 @@ manage.microsoft.com
 device.manage.microsoft.com
 mdm.microsoft.com
 config.office.com
+*config.office.com
 graph.microsoft.com
 *.graph.microsoft.com
 login.microsoftonline.com
@@ -38,10 +39,15 @@ v10.events.data.microsoft.com
 watson.microsoft.com
 browser.events.data.microsoft.com
 eu-mobile.events.data.microsoft.com
-settings-win.data.microsoft.com
-ztd.dds.microsoft.com
-*.events.data.microsoft.com
 *.events.data.microsoft.com
 *.data.microsoft.com
 *ztd.dds.microsoft.com
 *.dds.microsoft.com
+definitionupdates.microsoft.com
+*.prod.do.dsp.mp.microsoft.com
+*.windowsupdate.com
+*.delivery.mp.microsoft.com
+adl.windows.com
+*.api.cdp.microsoft.com
+tsfe.trafficshaping.dsp.mp.microsoft.com
+dm.microsoft.com
