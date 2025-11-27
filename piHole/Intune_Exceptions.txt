@@ -36,3 +36,12 @@ aka.ms
 settings-win.data.microsoft.com
 v10.events.data.microsoft.com
 watson.microsoft.com
+browser.events.data.microsoft.com
+eu-mobile.events.data.microsoft.com
+settings-win.data.microsoft.com
+ztd.dds.microsoft.com
+*.events.data.microsoft.com
+*.events.data.microsoft.com
+*.data.microsoft.com
+*ztd.dds.microsoft.com
+*.dds.microsoft.com
