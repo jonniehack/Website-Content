@@ -26,9 +26,15 @@ v0.0.1 - Initial release of AutopilotLab Tool.
 
 $Version = "0.0.1"
 $BasePath   = "D:\VIRTUAL_MACHINES\LAB" # Root path for all VMs
-$ClientIsoPath = "D:\VIRTUAL_MACHINES\ISO_STORE_OS_CLIENT" # Root path for all Client Operating System ISOs
-$ServerIsoPath = "D:\VIRTUAL_MACHINES\ISO_STORE_OS_SERVER" # Root path for all Server Operating System ISOs
+$ToolsPath  = "D:\VIRTUAL_MACHINES\TOOLS"
+$ClientIsoPath = "$ToolsPath\ISO_STORE_OS_CLIENT" # Root path for all Client Operating System ISOs
+$ServerIsoPath = "$ToolsPath\ISO_STORE_OS_SERVER" # Root path for all Server Operating System ISOs          
+$VhdFolder  = Join-Path $VMRootPath "Virtual Harddisks"
+$SwitchName = "EXTERNAL NETWORK"
 
+#---------------------Begin---------------------#
+
+#region Menus
 Function Invoke-Header {
         Clear-Variable -Name choice* -ErrorAction SilentlyContinue
 
@@ -44,15 +50,14 @@ Function Invoke-Header {
         Write-Host "         |___/|_|                                                              "
         Write-Host "`n        >>> Version $Version | To be run on the HyperV Server server <<<" -ForegroundColor Yellow
 
-} # Invoke-Header - FINISHED
+} # Invoke-Header - Needs Editing
 
 Function Invoke-MainMenu {
 
     while ($true) {
         Invoke-Header
         Write-Host "`n Please chose from the following options:" -ForegroundColor White
-        Write-Host "`n  (1) Create a new" -NoNewline
-        Write-Host " VM Template" -ForegroundColor Yellow
+        Write-Host "`n  (1) Create a new" -NoNewline ; Write-Host " VM Template" -ForegroundColor Yellow
         Write-Host "`n  (E) Exit"
         Write-Host "`n  (A) About the script"
         
@@ -88,10 +93,7 @@ Function Invoke-Pause {
         Read-Host | Out-Null
     }
 } # Invoke-Pause (Press any key to continue)
-
-Function Create-LabVMFolderStructure {
-
-}
+#endregion
 
 Function Get-LabVMISOImages{ 
 }
@@ -147,6 +149,39 @@ Function Invoke-LabVMPreRequisites {
     Invoke-MainMenu
 } # Invoke-LabVMPreRequisites - FINISHED
 
+Function Invoke-LabVMTemplateProperties {
+    
+    # Set vCPUs to 8
+    Set-VMProcessor -VMName $VMName -Count 8
+
+    # Dynamic memory
+    Set-VMMemory -VMName $VMName -DynamicMemoryEnabled $true `
+                 -MinimumBytes 2GB -StartupBytes $MemoryStartup -MaximumBytes 16GB
+
+    # Disable automatic checkpoints
+    Set-VM -Name $VMName -AutomaticCheckpointsEnabled $false
+
+    # Secure Boot
+    Set-VMFirmware -VMName $VMName -EnableSecureBoot On -SecureBootTemplate "MicrosoftWindows"
+
+    # TPM attempt
+    $TPMStatus = "Disabled or unavailable"
+    try {
+        Enable-VMTPM -VMName $VMName -ErrorAction Stop
+        $TPMStatus = "Enabled"
+    }
+    catch {
+        try {
+            Set-VMKeyProtector -VMName $VMName -NewLocalKeyProtector -ErrorAction Stop
+            Enable-VMTPM -VMName $VMName -ErrorAction Stop
+            $TPMStatus = "Enabled"
+        }
+        catch {
+            Write-Warning "TPM could not be enabled on this host for VM '$VMName'."
+        }
+    }
+}
+
 Function New-LabVMTemplate {
     
     Clear-Host
@@ -155,31 +190,34 @@ Function New-LabVMTemplate {
     # Collect ISOs from both locations
     $isoList = @()
 
+    # Get Client ISO List and add to Array
     if (Test-Path $ClientIsoPath) {
         $isoList += Get-ChildItem -Path $ClientIsoPath -Filter *.iso -File |
             Select-Object @{Name='DisplayName';Expression={"Client - " + $_.Name}},
                           @{Name='FullName';Expression={$_.FullName}}
     }
 
+    # Get Server ISO List and add to Array
     if (Test-Path $ServerIsoPath) {
         $isoList += Get-ChildItem -Path $ServerIsoPath -Filter *.iso -File |
             Select-Object @{Name='DisplayName';Expression={"Server - " + $_.Name}},
                           @{Name='FullName';Expression={$_.FullName}}
     }
 
+    # Error if no ISOs found
     if (-not $isoList -or $isoList.Count -eq 0) {
         Write-Error "No ISO files found in:
-  $ClientIsoPath
-  $ServerIsoPath"
+        $ClientIsoPath
+        $ServerIsoPath"
         return
     }
 
     # Prompt user to choose ISO
     Write-Host ""
-    Write-Host "Available ISO images:" -ForegroundColor Cyan
+    Write-Host "Chose one of the Available ISO images:" -ForegroundColor Cyan
     for ($i = 0; $i -lt $isoList.Count; $i++) {
         $index = $i + 1
-        Write-Host ("  [{0}] {1}" -f $index, $isoList[$i].DisplayName)
+        Write-Host ("`n  [{0}] {1}" -f $index, $isoList[$i].DisplayName)
     }
 
     do {
@@ -193,10 +231,7 @@ Function New-LabVMTemplate {
 
     # Derive VM name from ISO name: _Template-<ISONameWithoutExtension>
     $isoBaseName = [System.IO.Path]::GetFileNameWithoutExtension($isoFullPath)
-    # Sanitize to avoid weird chars in VM name
-    $safeName = ($isoBaseName -replace '[^A-Za-z0-9_\-]', '-')
-    $safeName = ($safeName -replace '-{2,}', '-') # collapse multiple dashes
-    $VMName = "_Template-$safeName"
+    $VMName = "_Template-$isoBaseName"
 
     Write-Host ""
     Write-Host "Using ISO:" -ForegroundColor Yellow
@@ -204,11 +239,6 @@ Function New-LabVMTemplate {
     Write-Host "VM will be created as:" -ForegroundColor Yellow
     Write-Host "  $VMName"
     Write-Host ""
-
-    # Base folder layout
-    $VMRootPath = Join-Path $BasePath $VMName            # D:\VIRTUAL_MACHINES\LAB\<VMName>
-    $VhdFolder  = Join-Path $VMRootPath "Virtual Harddisks"
-    $SwitchName = "EXTERNAL NETWORK"
 
     # Validate switch
     if (-not (Get-VMSwitch -Name $SwitchName -ErrorAction SilentlyContinue)) {
@@ -243,35 +273,7 @@ Function New-LabVMTemplate {
            -VHDPath $VhdPath `
            -SwitchName $SwitchName | Out-Null
 
-    # Set vCPUs to 8
-    Set-VMProcessor -VMName $VMName -Count 8
-
-    # Dynamic memory
-    Set-VMMemory -VMName $VMName -DynamicMemoryEnabled $true `
-                 -MinimumBytes 2GB -StartupBytes $MemoryStartup -MaximumBytes 16GB
-
-    # Disable automatic checkpoints
-    Set-VM -Name $VMName -AutomaticCheckpointsEnabled $false
-
-    # Secure Boot
-    Set-VMFirmware -VMName $VMName -EnableSecureBoot On -SecureBootTemplate "MicrosoftWindows"
-
-    # TPM attempt
-    $TPMStatus = "Disabled or unavailable"
-    try {
-        Enable-VMTPM -VMName $VMName -ErrorAction Stop
-        $TPMStatus = "Enabled"
-    }
-    catch {
-        try {
-            Set-VMKeyProtector -VMName $VMName -NewLocalKeyProtector -ErrorAction Stop
-            Enable-VMTPM -VMName $VMName -ErrorAction Stop
-            $TPMStatus = "Enabled"
-        }
-        catch {
-            Write-Warning "TPM could not be enabled on this host for VM '$VMName'."
-        }
-    }
+    Invoke-LabVMTemaplateProperties
 
     # Attach ISO
     Add-VMDvdDrive -VMName $VMName -Path $isoFullPath | Out-Null
@@ -304,8 +306,8 @@ Function New-LabVMTemplate {
     Invoke-Pause
 }
 
-
 ###############
 # CALL SCRIPT #
 ###############
+
 Invoke-LabVMPreRequisites
